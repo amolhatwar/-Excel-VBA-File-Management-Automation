@@ -1,0 +1,89 @@
+Option Explicit
+
+Sub OrganizeFilesByType()
+
+    Dim SourceFolder As String
+    Dim DestinationFolder As String
+    Dim fso As Object
+    Dim fld As Object
+    Dim fil As Object
+    Dim Ext As String
+    Dim TargetFolder As String
+
+    'Select Source Folder
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "Select Source Folder"
+        If .Show <> -1 Then Exit Sub
+        SourceFolder = .SelectedItems(1)
+    End With
+
+    'Select Destination Folder
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "Select Destination Folder"
+        If .Show <> -1 Then Exit Sub
+        DestinationFolder = .SelectedItems(1)
+    End With
+
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set fld = fso.GetFolder(SourceFolder)
+
+    For Each fil In fld.Files
+
+        Ext = LCase(fso.GetExtensionName(fil.Name))
+
+        Select Case Ext
+
+            Case "xls", "xlsx", "xlsm", "xlsb"
+                TargetFolder = DestinationFolder & "\Excel"
+
+            Case "csv"
+                TargetFolder = DestinationFolder & "\CSV"
+
+            Case "pdf"
+                TargetFolder = DestinationFolder & "\PDF"
+
+            Case "sql"
+                TargetFolder = DestinationFolder & "\SQL"
+
+            Case "doc", "docx"
+                TargetFolder = DestinationFolder & "\Word"
+
+            Case "ppt", "pptx"
+                TargetFolder = DestinationFolder & "\PowerPoint"
+
+            Case "txt"
+                TargetFolder = DestinationFolder & "\Text"
+
+            Case "jpg", "jpeg", "png", "gif", "bmp", "webp"
+                TargetFolder = DestinationFolder & "\Images"
+
+            Case "mp4", "avi", "mov", "wmv", "mkv"
+                TargetFolder = DestinationFolder & "\Videos"
+
+            Case "mp3", "wav", "aac"
+                TargetFolder = DestinationFolder & "\Audio"
+
+            Case "zip", "rar", "7z"
+                TargetFolder = DestinationFolder & "\Compressed"
+
+            Case "pbix"
+                TargetFolder = DestinationFolder & "\Power BI"
+
+            Case Else
+                TargetFolder = DestinationFolder & "\Others"
+
+        End Select
+
+        'Create Folder if Not Exists
+        If Not fso.FolderExists(TargetFolder) Then
+            fso.CreateFolder TargetFolder
+        End If
+
+        'Move File
+        fil.Move TargetFolder & "\" & fil.Name
+
+    Next fil
+
+    MsgBox "Files Organized Successfully!", vbInformation
+
+End Sub
